@@ -1,4 +1,4 @@
-const model = 'Client';
+const model = 'Subscription';
 const crud = require('../services/crudService');
 const find = async (req, res) => {
     return crud.find(req, res, model);
@@ -18,7 +18,6 @@ const findOne = async (req, res) => {
 }
 
 const create = async (req, res) => {
-    console.log(req.body);
     return crud.create(req, res, model);
 }
 const update = async (req, res) => {

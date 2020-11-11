@@ -32,25 +32,25 @@ module.exports = mongoose => {
     radiusToken: {
       type: String
     },
-    subscription: {
-      startedAt: {
-        type: Date,
-      },
-      finishedAt: {
-        type: Date
-      }
-    },
     photo: {
-      url: {
-        type: String
-      }
+      ETag: String,
+      Location: String,
+      key: String,
+      Key: String,
+      Bucket: String
     },
+    Subscription: { type: mongoose.Types.ObjectId, ref: 'Subscription' },
   }, {
     timestamps: {
       createdAt: 'created_at',
       updatedAt: 'updated_at'
     }
   });
+  newSchema.plugin(require('mongoose-delete'), {
+    deletedAt: true,
+    deletedBy: true,
+    overrideMethods: true
+  });  
   const Client = mongoose.model('Client', newSchema);
   return Client;
 };

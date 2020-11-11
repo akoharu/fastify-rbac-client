@@ -2,6 +2,8 @@ const model = require('../models').models;
 const Boom = require('@hapi/boom');
 const response = require('../config/response');
 const {MongooseQueryParser} = require('mongoose-query-parser');
+const aws = require('../services/aws.service');
+
 const parser = new MongooseQueryParser();
 
 const find = async (req, res, collection) => {
@@ -76,6 +78,26 @@ const findOne = async (req, res, collection) => {
     }
 }
 
+const createClient = async (req, res, collection) => {
+    try {
+        const data = new model[collection](req.body);
+        const newData = await data.save();
+        if (req.body.photo) {
+            const file = await req.body.photo[0];
+            let uploadedFile = await aws.s3upload(file, 'eyzet.io', 'client');
+            let photo = {
+                photo: uploadedFile
+            };
+            let _newData = JSON.parse(JSON.stringify(newData))
+            let updatedData = await model[collection].findOneAndUpdate(_newData._id, photo, {upsert: true, new: true});
+            return response.singleData(updatedData, 'Success', res)
+        }
+        return response.singleData(newData, 'Success', res)
+    } catch (error) {
+        throw Boom.boomify(error);
+    }
+}
+
 const create = async (req, res, collection) => {
     try {
         const data = new model[collection](req.body);
@@ -85,6 +107,29 @@ const create = async (req, res, collection) => {
         throw Boom.boomify(error);
     }
 }
+const updateClient = async (req, res, collection) => {
+    const id = req.params;
+    try {
+        if (req.body.photo) {
+            let dataOld = await model[collection].findOne(id, req.body);
+            let _dataOld = JSON.parse(JSON.stringify(dataOld));
+            if (_dataOld.hasOwnProperty('photo')) {
+                console.log(`Deleting file key : ${_dataOld.photo.key} ...`)
+                await aws.s3delete('eyzet.io', _dataOld.photo.key)                
+            }
+            const file = await req.body.photo[0];
+            let uploadedFile = await aws.s3upload(file, 'eyzet.io', 'client');
+            req.body.photo = uploadedFile
+            let updatedData = await model[collection].findOneAndUpdate(id, req.body, {upsert: true, new: true});
+            return response.singleData(updatedData, 'Success', res)
+        }
+        let newData = await model[collection].findOneAndUpdate(id, req.body, {upsert: true, new: true});
+        return response.singleData(newData, 'Success', res);   
+    } catch (error) {
+        throw Boom.boomify(error);
+    }
+}
+
 const update = async (req, res, collection) => {
     const id = req.params;
     try {
@@ -118,5 +163,5 @@ const restore = async (req, res, collection) => {
 }
 
 module.exports = {
-    find, findOne, create, update, destroy, findDeleted, count, countDeleted, restore
+    find, findOne, create, createClient, update,updateClient, destroy, findDeleted, count, countDeleted, restore
 }

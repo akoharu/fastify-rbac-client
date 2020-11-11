@@ -1,5 +1,5 @@
-const controller = require('../controller/client.controller');
-const schema = require('../schemas/client.schema');
+const controller = require('../../controller/subscription.controller');
+const schema = require('../../schemas/subscription.schema');
 module.exports = async function (fastify, opts) {
     fastify.post('/', {schema: schema.create, preValidation : [fastify.authenticate]}, controller.create);
     fastify.get('/', {schema: schema.find, preValidation : [fastify.authenticate]}, controller.find);

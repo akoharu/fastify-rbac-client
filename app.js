@@ -29,7 +29,8 @@ module.exports = async function (fastify, opts) {
         version: '0.1.0'
       },
       tags: [
-        { name: 'Client', description: 'Client related end-points' }
+        { name: 'Client', description: 'Client related end-points' },
+        { name: 'Subscription', description: 'Subscription related end-points' }
       ],  
       securityDefinitions: {
         apiKey: {

@@ -48,6 +48,7 @@ const filter = {
 const queryStringJsonSchema = {
     type: 'object',
     properties: {
+        populate: { type: 'string' },
         firstName: {
             type: 'string'
         },
