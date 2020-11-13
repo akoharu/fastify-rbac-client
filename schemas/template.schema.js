@@ -3,7 +3,9 @@ const tags = ['Company'];
 const bodyJsonSchema
 const filter = {
     limit: { type: 'string' },
-    skip: { type: 'string' }
+    skip: { type: 'string' },
+    sort: { type: 'string' },
+    populate: { type: 'string' }
 }
 const queryStringJsonSchema
 const paramsJsonSchema = {
