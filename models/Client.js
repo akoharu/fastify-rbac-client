@@ -34,8 +34,7 @@ module.exports = mongoose => {
     },
     photo: {
       type: Object,
-    },
-    Subscription: { type: mongoose.Types.ObjectId, ref: 'Subscription' },
+    }
   }, {
     timestamps: {
       createdAt: 'created_at',
