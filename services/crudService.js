@@ -84,7 +84,9 @@ const createClient = async (req, res, collection) => {
         const newData = await data.save();
         if (req.body.photo) {
             const file = await req.body.photo[0];
-            let uploadedFile = await axios.post(process.env.STORAGE_SERVER+'/s3/upload', file)
+            let uploadedFile = await axios.post(process.env.STORAGE_SERVER+'/local/client/upload', file, {
+                headers: { 'Authorization': process.env.STORAGE_SERVER_API_KEY }
+            })
             let photo = {
                 photo: uploadedFile.data.data
             };
@@ -110,15 +112,23 @@ const create = async (req, res, collection) => {
 const updateClient = async (req, res, collection) => {
     const id = req.params;
     try {
+        let dataOld = await model[collection].findOne(id, req.body);
+        if (!dataOld) {
+            res.code(404);
+            throw Boom.notFound('Data not found!')
+        }
         if (req.body.photo) {
-            let dataOld = await model[collection].findOne(id, req.body);
             let _dataOld = JSON.parse(JSON.stringify(dataOld));
             if (_dataOld.hasOwnProperty('photo')) {
                 console.log(`Deleting file key : ${_dataOld.photo.key} ...`)
-                await axios.delete(process.env.STORAGE_SERVER+'/s3/'+_dataOld.photo.key)              
+                await axios.post(process.env.STORAGE_SERVER+'/local/delete', _dataOld.photo, {
+                    headers: { 'Authorization': process.env.STORAGE_SERVER_API_KEY }
+                })              
             }
             const file = await req.body.photo[0];
-            let uploadedFile = await axios.post(process.env.STORAGE_SERVER+'/s3/upload', file)
+            let uploadedFile = await axios.post(process.env.STORAGE_SERVER+'/local/client/upload', file, {
+                headers: { 'Authorization': process.env.STORAGE_SERVER_API_KEY }
+            })
             req.body.photo = uploadedFile.data.data
             let updatedData = await model[collection].findOneAndUpdate(id, req.body, {upsert: true, new: true});
             return response.singleData(updatedData, 'Success', res)
