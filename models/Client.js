@@ -33,11 +33,7 @@ module.exports = mongoose => {
       type: String
     },
     photo: {
-      ETag: String,
-      Location: String,
-      key: String,
-      Key: String,
-      Bucket: String
+      type: Object,
     },
     Subscription: { type: mongoose.Types.ObjectId, ref: 'Subscription' },
   }, {
